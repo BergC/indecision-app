@@ -5,10 +5,11 @@ class IndecisionApp extends React.Component {
         // Bind the event handler to the correct instance.
         this.handleDeleteOptions = this.handleDeleteOptions.bind(this);
         this.handlePick = this.handlePick.bind(this);
+        this.handleAddOption = this.handleAddOption.bind(this);
 
         // Set our parent default state.
         this.state = {
-            options: ['Thing one', 'Thing two', 'Thing three']
+            options: []
         };
     }
 
@@ -27,6 +28,22 @@ class IndecisionApp extends React.Component {
         alert(this.state.options[randomNum]);
     }
 
+    // Add new option based on data based into the child AddOption class.
+    handleAddOption(option) {
+        if (!option) {
+            return 'Enter a valid value to add.'
+        } else if (this.state.options.indexOf(option) > -1) {
+            return 'Enter a unique item to add.'
+        } 
+
+        // We use concat so that we don't manipulate the previous state, but instead return a new array value.
+        this.setState((prevState) => {
+            return {
+                options: prevState.options.concat(option)
+            };
+        });
+    }
+
     render() {
         const title = 'Indecision';
         const subtitle = 'Put your life in the hands of a computer.';
@@ -42,7 +59,9 @@ class IndecisionApp extends React.Component {
                     options={this.state.options} 
                     handleDeleteOptions={this.handleDeleteOptions}
                 />
-                <AddOption />
+                <AddOption 
+                    handleAddOption={this.handleAddOption}
+                />
             </div>
         );
     }
@@ -98,19 +117,35 @@ class Option extends React.Component {
 }
 
 class AddOption extends React.Component {
+    constructor(props) {
+        super(props);
+
+        // Bind the event handler to the correct instance.
+        this.handleAddOption = this.handleAddOption.bind(this);
+
+        // Default state.
+        this.state = {
+            error: undefined 
+        };
+    }
+
     handleAddOption(e) {
         e.preventDefault();
 
         const option = e.target.elements.option.value.trim();
 
-        if(option) {
-            alert(option);
-        }
+        // Allows us to pass the added option data up to the parent by calling the parent handleAddOption method.
+        const error = this.props.handleAddOption(option);
+
+        this.setState(() => {
+            return { error };
+        });
     }
 
     render() {
         return (
             <div>
+                {this.state.error && <p>{this.state.error}</p>}
                 <form onSubmit={this.handleAddOption}>
                     <input placeholder="Type your option here." type="text" name="option"></input>
                     <button>Add Option.</button>
