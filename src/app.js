@@ -2,24 +2,27 @@ class IndecisionApp extends React.Component {
     constructor(props) {
         super(props);
 
-        // Bind the event handler to the correct instance.
+        // Bind the event handlers to the correct instance.
         this.handleDeleteOptions = this.handleDeleteOptions.bind(this);
         this.handlePick = this.handlePick.bind(this);
         this.handleAddOption = this.handleAddOption.bind(this);
+        this.handleDeleteOption = this.handleDeleteOption.bind(this);
 
         // Set our parent default state.
         this.state = {
-            options: []
+            options: props.options
         };
     }
 
     // Allows users to delete all options by passing down to the Options class component.
     handleDeleteOptions() {
-        this.setState(() => {
-            return {
-                options: []
-            };
-        });
+        this.setState(() => ({ options: [] }));
+    }
+
+    handleDeleteOption(optionToRemove) {
+        this.setState((prevState) => ({
+            options: prevState.options.filter((option) => optionToRemove !== option)
+        }));
     }
 
     // Randomly select an option to do.
@@ -37,20 +40,17 @@ class IndecisionApp extends React.Component {
         } 
 
         // We use concat so that we don't manipulate the previous state, but instead return a new array value.
-        this.setState((prevState) => {
-            return {
-                options: prevState.options.concat(option)
-            };
-        });
+        this.setState((prevState) => ({ 
+            options: prevState.options.concat(option) 
+        }));
     }
 
     render() {
-        const title = 'Indecision';
         const subtitle = 'Put your life in the hands of a computer.';
 
         return (
             <div>
-                <Header title={title} subtitle={subtitle} />
+                <Header subtitle={subtitle} />
                 <Action
                     hasOptions={this.state.options.length > 0}
                     handlePick={this.handlePick}
@@ -58,6 +58,8 @@ class IndecisionApp extends React.Component {
                 <Options
                     options={this.state.options} 
                     handleDeleteOptions={this.handleDeleteOptions}
+                    handleDeleteOption={this.handleDeleteOption}
+                    handleAddOption={this.handleAddOption}
                 />
                 <AddOption 
                     handleAddOption={this.handleAddOption}
@@ -67,14 +69,24 @@ class IndecisionApp extends React.Component {
     }
 }
 
+IndecisionApp.defaultProps = {
+    options: []
+};
+
 const Header = (props) => {
     return (
         <div>
             <h1>{props.title}</h1>
-            <h2>{props.subtitle}</h2>
+            {
+                props.subtitle && <h2>{props.subtitle}</h2>
+            }
         </div>
     );
-}
+};
+
+Header.defaultProps = {
+    title: 'Indecision'
+};
 
 const Action = (props) => {
     return (
@@ -84,7 +96,7 @@ const Action = (props) => {
             </button>
         </div>
     );
-}
+};
 
 // We can access the handleDeleteOptions method that was created in the parent class.
 // It has access to the parent state by accessing the props that were passed down to the Options child.
@@ -94,19 +106,32 @@ const Options = (props) => {
         <div>
             <button onClick={props.handleDeleteOptions}>Remove All Options.</button>
             {
-                props.options.map((option) => <Option key={option} optionText={option} />)
+                props.options.map((option) => (
+                    <Option
+                        key={option}
+                        optionText={option}
+                        handleDeleteOption={props.handleDeleteOption}
+                    />
+                ))
             }
         </div>
     );
-}
+};
 
 const Option = (props) => {
     return (
         <div>
             {props.optionText}
+            <button
+                onClick={(e) => {
+                    props.handleDeleteOption(props.optionText);
+                }}
+            >
+                Remove
+            </button>
         </div>
     );
-}
+};
 
 class AddOption extends React.Component {
     constructor(props) {
@@ -129,9 +154,7 @@ class AddOption extends React.Component {
         // Allows us to pass the added option data up to the parent by calling the parent handleAddOption method.
         const error = this.props.handleAddOption(option);
 
-        this.setState(() => {
-            return { error };
-        });
+        this.setState(() => ({ error }));
     }
 
     render() {
