@@ -10,8 +10,35 @@ class IndecisionApp extends React.Component {
 
         // Set our parent default state.
         this.state = {
-            options: props.options
+            options: []
         };
+    }
+
+    // DOM mount lifecycle method for fetching data.
+    componentDidMount() {
+        try {
+            const json = localStorage.getItem('options');
+            const options = JSON.parse(json);
+            
+            if (options) {
+                this.setState(() => ({ options }));
+            }
+        } catch (e) {
+            // Do nothing if data is poor quality.
+        }
+    }
+
+    // Lifecycle method that fires after components or props update used here for saving data.
+    componentDidUpdate(prevProps, prevState) {
+        if (prevState.options.length !== this.state.options.length) {
+            const json = JSON.stringify(this.state.options);
+            localStorage.setItem('options', json);
+        }
+    }
+
+    // Lifecycle method that fires before component is removed from DOM.
+    componentWillUnmount() {
+        console.log('unmount');
     }
 
     // Allows users to delete all options by passing down to the Options class component.
@@ -69,10 +96,6 @@ class IndecisionApp extends React.Component {
     }
 }
 
-IndecisionApp.defaultProps = {
-    options: []
-};
-
 const Header = (props) => {
     return (
         <div>
@@ -105,6 +128,7 @@ const Options = (props) => {
     return (
         <div>
             <button onClick={props.handleDeleteOptions}>Remove All Options.</button>
+            {props.options.length === 0 && <p>Please add an option to get started!</p>}
             {
                 props.options.map((option) => (
                     <Option
@@ -155,6 +179,10 @@ class AddOption extends React.Component {
         const error = this.props.handleAddOption(option);
 
         this.setState(() => ({ error }));
+
+        if (!error) {
+            e.target.elements.option.value = '';
+        }
     }
 
     render() {
