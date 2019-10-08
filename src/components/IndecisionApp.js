@@ -5,20 +5,40 @@ import Action from './Action';
 import Options from './Options';
 
 export default class IndecisionApp extends React.Component {
-    constructor(props) {
-        super(props);
+    state = {
+        options: []
+    };
 
-        // Bind the event handlers to the correct instance.
-        this.handleDeleteOptions = this.handleDeleteOptions.bind(this);
-        this.handlePick = this.handlePick.bind(this);
-        this.handleAddOption = this.handleAddOption.bind(this);
-        this.handleDeleteOption = this.handleDeleteOption.bind(this);
+    // Allows users to delete all options by passing down to the Options class component.
+    handleDeleteOptions = () => {
+        this.setState(() => ({ options: [] }));
+    };
 
-        // Set our parent default state.
-        this.state = {
-            options: []
-        };
-    }
+    handleDeleteOption = (optionToRemove) => {
+        this.setState((prevState) => ({
+            options: prevState.options.filter((option) => optionToRemove !== option)
+        }));
+    };
+
+    // Randomly select an option to do.
+    handlePick = () => {
+        const randomNum = Math.floor(Math.random() * this.state.options.length);
+        alert(this.state.options[randomNum]);
+    };
+
+    // Add new option based on data based into the child AddOption class.
+    handleAddOption = (option) => {
+        if (!option) {
+            return 'Enter a valid value to add.'
+        } else if (this.state.options.indexOf(option) > -1) {
+            return 'Enter a unique item to add.'
+        } 
+
+        // We use concat so that we don't manipulate the previous state, but instead return a new array value.
+        this.setState((prevState) => ({ 
+            options: prevState.options.concat(option) 
+        }));
+    };
 
     // DOM mount lifecycle method for fetching data.
     componentDidMount() {
@@ -45,37 +65,6 @@ export default class IndecisionApp extends React.Component {
     // Lifecycle method that fires before component is removed from DOM.
     componentWillUnmount() {
         console.log('unmount');
-    }
-
-    // Allows users to delete all options by passing down to the Options class component.
-    handleDeleteOptions() {
-        this.setState(() => ({ options: [] }));
-    }
-
-    handleDeleteOption(optionToRemove) {
-        this.setState((prevState) => ({
-            options: prevState.options.filter((option) => optionToRemove !== option)
-        }));
-    }
-
-    // Randomly select an option to do.
-    handlePick() {
-        const randomNum = Math.floor(Math.random() * this.state.options.length);
-        alert(this.state.options[randomNum]);
-    }
-
-    // Add new option based on data based into the child AddOption class.
-    handleAddOption(option) {
-        if (!option) {
-            return 'Enter a valid value to add.'
-        } else if (this.state.options.indexOf(option) > -1) {
-            return 'Enter a unique item to add.'
-        } 
-
-        // We use concat so that we don't manipulate the previous state, but instead return a new array value.
-        this.setState((prevState) => ({ 
-            options: prevState.options.concat(option) 
-        }));
     }
 
     render() {
