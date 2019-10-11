@@ -3,10 +3,12 @@ import AddOption from './AddOption';
 import Header from './Header';
 import Action from './Action';
 import Options from './Options';
+import OptionModal from './OptionModal';
 
 export default class IndecisionApp extends React.Component {
     state = {
-        options: []
+        options: [],
+        selectedOption: undefined
     };
 
     // Allows users to delete all options by passing down to the Options class component.
@@ -23,7 +25,9 @@ export default class IndecisionApp extends React.Component {
     // Randomly select an option to do.
     handlePick = () => {
         const randomNum = Math.floor(Math.random() * this.state.options.length);
-        alert(this.state.options[randomNum]);
+        this.setState(() => ({
+            selectedOption: this.state.options[randomNum]
+        }));
     };
 
     // Add new option based on data based into the child AddOption class.
@@ -38,6 +42,11 @@ export default class IndecisionApp extends React.Component {
         this.setState((prevState) => ({ 
             options: prevState.options.concat(option) 
         }));
+    };
+
+    // Event handler to return selectedOption to undefined and close our Modal. This is passed to Modal below.
+    handleClearSelectedOption = () => {
+        this.setState(() => ({ selectedOption: undefined }));
     };
 
     // DOM mount lifecycle method for fetching data.
@@ -85,6 +94,10 @@ export default class IndecisionApp extends React.Component {
                 />
                 <AddOption 
                     handleAddOption={this.handleAddOption}
+                />
+                <OptionModal 
+                    selectedOption={this.state.selectedOption}
+                    handleClearSelectedOption={this.handleClearSelectedOption}
                 />
             </div>
         );
