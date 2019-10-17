@@ -1,6 +1,11 @@
+// Keep these loading in first.
 @import './base/settings';
 @import './base/base';
+
+// Load in partials.
+@import './components/add-option';
 @import './components/button';
 @import './components/container';
 @import './components/header';
+@import './components/option';
 @import './components/widget';

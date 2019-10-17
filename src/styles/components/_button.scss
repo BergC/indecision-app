@@ -31,3 +31,8 @@
     color: $off-white;
     padding: 0;
 }
+
+.button--link:hover {
+    border-bottom: .2rem solid darken($off-white, 10%);
+    transition: 100ms;
+}
